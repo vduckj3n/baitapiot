@@ -207,5 +207,3 @@ npm stop
 ```
 
 Log: `Backend/runtime/logs/`.
-
-ESP32: sao chép `ESP32/esp32_iot/config.example.h` thành `config.h` trong cùng thư mục, rồi điền cấu hình Wi-Fi và MQTT trước khi nạp chương trình. File `config.h` được loại khỏi Git để giữ thông tin đăng nhập trên máy.

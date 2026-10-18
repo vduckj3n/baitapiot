@@ -30,6 +30,3 @@ Desktop.ini
 *.tmp
 *.swp
 *~
-
-# Local ESP32 credentials
-/ESP32/esp32_iot/config.h

@@ -11,8 +11,21 @@
 const int LED_PINS[] = {21, 22, 23};
 const int LED_COUNT = sizeof(LED_PINS) / sizeof(LED_PINS[0]);
 
-// Wi-Fi và MQTT: sao chép config.example.h thành config.h rồi cấu hình.
-#include "config.h"
+// 2. WIFI
+// Wi-Fi cũ (giữ lại để chuyển mạng khi cần):
+// const char *ssid = "Đức Kiên";
+// const char *wifi_password = "123456789a";
+const char *ssid = "PTIT_WIFI_KTX";
+const char *wifi_password = "PTIT@33daimo";
+
+// 3. MQTT
+
+// IP Wi-Fi của laptop Windows
+const char *mqtt_server = "10.32.192.105";
+const int mqtt_port = 1883;
+
+const char *mqtt_username = "vanduckien";
+const char *mqtt_password = "B23DCAT162";
 
 // MQTT Topics
 const char *topic_sensor = "data_sensor";
