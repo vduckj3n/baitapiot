@@ -1,0 +1,119 @@
+<section id="tab-data-sensor" class="tab-page history-page">
+  <h1 class="page-title">Data Sensor</h1>
+  <p class="page-subtitle">
+    Review historical readings and continuous sensor logs
+  </p>
+
+  <div class="top-control-bar">
+    <div class="filter-left-group">
+      <select id="sensor-search-attr" class="custom-select">
+        <option value="VALUE">Sensor Value</option>
+        <option value="NAME">Sensor Name</option>
+        <option value="TYPE">Sensor Type</option>
+        <option value="TIMESTAMP">Timestamp</option>
+      </select>
+
+      <div class="search-container">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          id="sensor-search-input"
+          class="search-input"
+          placeholder="Search sensor logs..."
+          onpaste="handlePaste('sensor')"
+          oninput="handleDebounce('sensor')"
+        />
+      </div>
+    </div>
+
+    <div class="filter-right-group">
+      <select
+        id="sensor-type-filter"
+        class="custom-select"
+        onchange="filterSensorData()"
+      >
+        <option value="ALL">All Sensors</option>
+        <option value="Humidity">Humidity Sensor</option>
+        <option value="Temperature">Temperature</option>
+        <option value="Light">Light Sensor</option>
+      </select>
+
+      <select
+        id="sensor-sort"
+        class="custom-select"
+        onchange="filterSensorData()"
+      >
+        <option value="NEWEST">Sort Newest</option>
+        <option value="OLDEST">Sort Oldest</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div
+      class="table-scroll"
+      tabindex="0"
+      role="region"
+      aria-label="data-sensor"
+    >
+      <table class="custom-table">
+        <colgroup>
+          <col style="width: 8%" />
+          <col style="width: 24%" />
+          <col style="width: 15%" />
+          <col style="width: 15%" />
+          <col style="width: 14%" />
+          <col style="width: 24%" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>SENSOR NAME</th>
+            <th>SENSOR TYPE</th>
+            <th>VALUE</th>
+            <th>STATUS</th>
+            <th>TIMESTAMP</th>
+          </tr>
+        </thead>
+        <tbody id="sensor-tbody">
+          <!-- Rendered by JS -->
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" aria-label="Sensor data pagination">
+      <span id="sensor-page-info">Showing 0 of 0 records</span>
+      <div class="pagination-controls">
+        <label class="page-limit" for="sensor-page-limit"
+          >Page limit
+          <select
+            id="sensor-page-limit"
+            class="custom-select"
+            onchange="changeSensorPageLimit(this.value)"
+          >
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+          </select>
+        </label>
+        <button
+          type="button"
+          class="pagination-button"
+          id="sensor-prev-page"
+          aria-label="Previous page"
+          onclick="changeSensorPage(-1)"
+        >
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span class="pagination-page" id="sensor-page-number">Page 1 / 1</span>
+        <button
+          type="button"
+          class="pagination-button"
+          id="sensor-next-page"
+          aria-label="Next page"
+          onclick="changeSensorPage(1)"
+        >
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

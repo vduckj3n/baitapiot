@@ -1,0 +1,25 @@
+{
+  "name": "iot-system-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Backend for ESP32 sensor monitoring and LED control",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "check": "node --check src/server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mqtt": "^5.14.1",
+    "mysql2": "^3.14.5",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

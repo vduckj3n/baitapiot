@@ -1,0 +1,111 @@
+<section id="tab-dashboard" class="tab-page active">
+  <h1 class="page-title">Dashboard</h1>
+  <p class="page-subtitle">
+    Real-time telemetry and combined sensor dynamics ·
+    <span id="device-connection" class="connection-status offline"
+      >OFFLINE</span
+    >
+  </p>
+
+  <!-- METRIC CARDS -->
+  <div class="metrics-grid">
+    <div class="metric-card temp">
+      <div class="metric-icon">
+        <i class="fa-solid fa-temperature-high"></i>
+      </div>
+      <div class="metric-data">
+        <span>Temperature</span>
+        <h2 id="val-temp">28.0 °C</h2>
+      </div>
+    </div>
+    <div class="metric-card hum">
+      <div class="metric-icon"><i class="fa-solid fa-droplet"></i></div>
+      <div class="metric-data">
+        <span>Humidity</span>
+        <h2 id="val-hum">78.0 %</h2>
+      </div>
+    </div>
+    <div class="metric-card light">
+      <div class="metric-icon"><i class="fa-solid fa-sun"></i></div>
+      <div class="metric-data">
+        <span>Light</span>
+        <h2 id="val-light">500 Lux</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN DASHBOARD CONTENT GRID (CHART LEFT | LED CONTROL RIGHT) -->
+  <div class="dashboard-main-grid">
+    <!-- COMBINED REALTIME CHART (LEFT) -->
+    <div class="combined-chart-card">
+      <div class="chart-header">
+        <h3>
+          <i
+            class="fa-solid fa-chart-line"
+            style="color: var(--primary-purple)"
+          ></i>
+          Real-time Environmental Monitoring
+        </h3>
+        <div class="live-indicator">
+          <span class="live-dot"></span>
+          <span id="live-label">DISCONNECTED</span>
+        </div>
+      </div>
+      <div class="chart-container-wrapper">
+        <canvas id="realtimeCombinedChart"></canvas>
+      </div>
+    </div>
+
+    <!-- LED ACTUATOR CONTROL (RIGHT) -->
+    <div class="glass-box-sidebar">
+      <h3 style="margin-bottom: 18px; font-size: 1rem">
+        <i class="fa-solid fa-lightbulb" style="color: var(--light-color)"></i>
+        Actuator Control
+      </h3>
+      <div class="led-control-vertical">
+        <div class="led-card">
+          <div class="led-info-group">
+            <i class="fa-solid fa-lightbulb led-icon" id="led-icon-1"></i>
+            <div class="led-details">
+              <h4>LED 1</h4>
+              <p id="led-status-1">Status: OFF</p>
+            </div>
+          </div>
+          <button
+            class="btn-led-toggle off"
+            id="btn-led-1"
+            onclick="toggleLED(1)"
+          >
+            Turn ON
+          </button>
+        </div>
+
+        <div class="led-card">
+          <div class="led-info-group">
+            <i class="fa-solid fa-lightbulb led-icon" id="led-icon-2"></i>
+            <div class="led-details">
+              <h4>LED 2</h4>
+              <p id="led-status-2">Status: OFF</p>
+            </div>
+          </div>
+          <button class="btn-led-toggle off" id="btn-led-2" onclick="toggleLED(2)">
+            Turn ON
+          </button>
+        </div>
+
+        <div class="led-card">
+          <div class="led-info-group">
+            <i class="fa-solid fa-lightbulb led-icon" id="led-icon-3"></i>
+            <div class="led-details">
+              <h4>LED 3</h4>
+              <p id="led-status-3">Status: OFF</p>
+            </div>
+          </div>
+          <button class="btn-led-toggle off" id="btn-led-3" onclick="toggleLED(3)">
+            Turn ON
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

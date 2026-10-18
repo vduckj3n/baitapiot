@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+/Backend/mosquitto/passwd
+
+# Generated runtime, logs and database files
+/Backend/runtime/
+/Frontend/runtime-session.json
+/Frontend/runtime-session.json.tmp
+.mysql-data/
+*.log
+npm-debug.log*
+*.pid
+
+# Postman workspace and collections (local only)
+/postman/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Local ESP32 credentials
+/ESP32/esp32_iot/config.h

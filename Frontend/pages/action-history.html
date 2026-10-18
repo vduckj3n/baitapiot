@@ -1,0 +1,137 @@
+<section id="tab-action-history" class="tab-page history-page">
+  <h1 class="page-title">Action History</h1>
+  <p class="page-subtitle">
+    Audit logs for device triggers and actuator operations
+  </p>
+
+  <div class="top-control-bar">
+    <div class="filter-left-group">
+      <select id="action-search-attr" class="custom-select">
+        <option value="TIMESTAMP">Timestamp</option>
+      </select>
+
+      <div class="search-container">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          id="action-search-input"
+          class="search-input"
+          placeholder="Search timestamp..."
+          onpaste="handlePaste('action')"
+          oninput="handleDebounce('action')"
+        />
+      </div>
+    </div>
+
+    <div class="filter-right-group">
+      <select
+        id="action-filter"
+        class="custom-select"
+        onchange="filterActionData()"
+      >
+        <option value="ALL">All Actions</option>
+        <option value="ON">ON</option>
+        <option value="OFF">OFF</option>
+      </select>
+
+      <select
+        id="action-device-filter"
+        class="custom-select"
+        onchange="filterActionData()"
+      >
+        <option value="ALL">All LEDs</option>
+        <option value="1">LED 1</option>
+        <option value="2">LED 2</option>
+        <option value="3">LED 3</option>
+      </select>
+
+      <select
+        id="action-status-filter"
+        class="custom-select"
+        onchange="filterActionData()"
+      >
+        <option value="ALL">All Statuses</option>
+        <option value="SUCCESS">SUCCESS</option>
+        <option value="FAILED">FAILED</option>
+        <option value="PENDING">PENDING</option>
+      </select>
+
+      <select
+        id="action-sort"
+        class="custom-select"
+        onchange="filterActionData()"
+      >
+        <option value="NEWEST">Sort Newest</option>
+        <option value="OLDEST">Sort Oldest</option>
+      </select>
+
+      <button class="btn-icon" onclick="filterActionData()">
+        <i class="fa-solid fa-rotate"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div
+      class="table-scroll"
+      tabindex="0"
+      role="region"
+      aria-label="action-history"
+    >
+      <table class="custom-table">
+        <colgroup>
+          <col style="width: 8%" />
+          <col style="width: 26%" />
+          <col style="width: 14%" />
+          <col style="width: 20%" />
+          <col style="width: 32%" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>DEVICE NAME</th>
+            <th>ACTION</th>
+            <th>STATUS</th>
+            <th>TIMESTAMP</th>
+          </tr>
+        </thead>
+        <tbody id="action-tbody">
+          <!-- Rendered by JS -->
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" aria-label="Action history pagination">
+      <span id="action-page-info">Showing 0 of 0 records</span>
+      <div class="pagination-controls">
+        <label class="page-limit" for="action-page-limit"
+          >Page limit
+          <select
+            id="action-page-limit"
+            class="custom-select"
+            onchange="changeActionPageLimit(this.value)"
+          >
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+          </select>
+        </label>
+        <button
+          type="button"
+          class="pagination-button"
+          id="action-prev-page"
+          onclick="changeActionPage(-1)"
+        >
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <span class="pagination-page" id="action-page-number">Page 1 / 1</span>
+        <button
+          type="button"
+          class="pagination-button"
+          id="action-next-page"
+          onclick="changeActionPage(1)"
+        >
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
