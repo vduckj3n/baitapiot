@@ -21,7 +21,7 @@ const char *wifi_password = "PTIT@33daimo";
 // 3. MQTT
 
 // IP Wi-Fi của laptop Windows
-const char *mqtt_server = "10.32.192.105";
+const char *mqtt_server = "10.32.222.134";
 const int mqtt_port = 1883;
 
 const char *mqtt_username = "vanduckien";

@@ -10,7 +10,8 @@
     "status": "node scripts/system.js status",
     "check": "node scripts/check.js",
     "postinstall": "npm --prefix Backend install",
-    "test": "node --test"
+    "test": "node --test",
+    "db:migrate": "node scripts/migrate-database.js"
   },
   "engines": {
     "node": ">=20"

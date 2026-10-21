@@ -119,6 +119,45 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON iot_system.* TO 'iot_user'@'localhost';
 EXIT;
 ```
 
+### Cập nhật database đã tạo bằng schema cũ
+
+Schema hiện tại giữ đúng năm bảng và chuẩn hóa dữ liệu đo qua `data_sensor.sensor_id`.
+Đơn vị cố định của ba loại cảm biến được xác định trong backend, không lưu lặp trong CSDL.
+Xem phân tích phụ thuộc hàm tại [Backend/database/README.md](Backend/database/README.md).
+
+Dừng backend, bật MySQL rồi chạy:
+
+```bash
+npm run db:migrate
+```
+
+Lệnh sử dụng cấu hình `Backend/.env`, sao lưu cấu trúc và toàn bộ dữ liệu năm bảng
+vào `Backend/runtime/backups/before-bcnf-*.json` trước khi đổi schema. File sao lưu
+chứa thông tin tài khoản và cần được giữ riêng. Không tạo bảng sao lưu trong CSDL.
+Tài khoản MySQL cần quyền CREATE TEMPORARY TABLES, ALTER, REFERENCES, SELECT,
+INSERT, UPDATE và quyền tạo/xóa index liên quan (thường dùng tài khoản quản trị
+cho bước migration). Dừng các tiến trình khác ghi vào CSDL trong lúc chuyển đổi.
+
+Lệnh tự chọn migration từ schema ban đầu, schema đã tinh gọn hoặc BCNF còn dùng ENUM.
+Migration 003 đổi toàn bộ ENUM sang VARCHAR, giữ nguyên dữ liệu/default và bổ sung
+CHECK cho vai trò/trạng thái cố định; sensor_type cho phép thêm loại cảm biến. Khi database đã
+chuyển đổi hoàn tất, chạy lại không thay đổi dữ liệu. Nếu migration thất bại giữa chừng,
+giữ bản sao lưu và xử lý schema hiện tại trước khi chạy lại; các lệnh DDL MySQL
+không rollback toàn bộ quá trình như một transaction thông thường.
+
+`schema.sql` chỉ tạo bảng còn thiếu, không cập nhật cấu trúc bảng cũ.
+Bản cài mới chỉ cần schema và seed, không chạy migration.
+
+Kiểm thử tích hợp bằng MySQL riêng với tài khoản `root` có quyền tạo/xóa database:
+
+```bash
+IOT_TEST_MYSQL_PORT=13317 node --test scripts/tests/database-cleanup.test.js
+```
+
+Có thể đặt thêm `IOT_TEST_MYSQL_HOST` và `IOT_TEST_MYSQL_PASSWORD`.
+Test tạo/xóa database tạm có tiền tố `iot_cleanup_test_`, kiểm tra ba đường nâng cấp,
+API đăng ký/đăng nhập, dữ liệu cảm biến, biểu đồ và luồng điều khiển LED.
+
 ## 4. Tạo tài khoản MQTT
 
 ```bash

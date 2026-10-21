@@ -4,8 +4,8 @@ export const deviceRepository = {
   // Mỗi đèn có một ID riêng để lưu trạng thái và lịch sử độc lập.
   async ensureLedDevices() {
     await pool.execute(
-      `INSERT INTO devices (id, device_code, device_name)
-       VALUES (2, 'ESP32_01_LED_2', 'LED 2'), (3, 'ESP32_01_LED_3', 'LED 3')
+      `INSERT INTO devices (id, device_name)
+       VALUES (2, 'LED 2'), (3, 'LED 3')
        ON DUPLICATE KEY UPDATE id = id`,
     );
   },
@@ -33,7 +33,7 @@ export const deviceRepository = {
 
   async findById(id, connection = pool) {
     const [rows] = await connection.execute(
-      `SELECT d.id, d.device_code, d.device_name, d.led_state, d.connection_status,
+      `SELECT d.id, d.device_name, d.led_state, d.connection_status,
               d.last_seen
        FROM devices d WHERE d.id = ? LIMIT 1`,
       [id],
