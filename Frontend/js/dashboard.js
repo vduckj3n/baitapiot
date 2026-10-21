@@ -59,6 +59,8 @@ function initChart(history = []) {
           ticks: {},
         },
         yLight: {
+          min: 0,
+          max: 1000,
           type: 'linear',
           display: true,
           position: 'right',

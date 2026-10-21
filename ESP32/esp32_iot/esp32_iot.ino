@@ -2,6 +2,7 @@
 #include <PubSubClient.h>
 #include <DHT.h>
 #include <esp_random.h>
+#include "light_sensor.h"
 
 // 1. PIN
 #define DHT_PIN 4
@@ -12,16 +13,17 @@ const int LED_PINS[] = {21, 22, 23};
 const int LED_COUNT = sizeof(LED_PINS) / sizeof(LED_PINS[0]);
 
 // 2. WIFI
-// Wi-Fi cũ (giữ lại để chuyển mạng khi cần):
-// const char *ssid = "Đức Kiên";
-// const char *wifi_password = "123456789a";
-const char *ssid = "PTIT_WIFI_KTX";
-const char *wifi_password = "PTIT@33daimo";
+const char *ssid = "Đức Kiên";
+const char *wifi_password = "123456789a";
+
+// Wi-Fi PTIT KTX (giữ lại để chuyển mạng khi cần):
+// const char *ssid = "PTIT_WIFI_KTX";
+// const char *wifi_password = "PTIT@33daimo";
 
 // 3. MQTT
 
 // IP Wi-Fi của laptop Windows
-const char *mqtt_server = "10.32.222.134";
+const char *mqtt_server = "172.20.10.2";
 const int mqtt_port = 1883;
 
 const char *mqtt_username = "vanduckien";
@@ -256,7 +258,7 @@ void sendSensorData() {
   // Độ ẩm
   float humidity = dht.readHumidity();
   // Ánh sáng
-  int light = analogRead(LDR_PIN);
+  int light = lightAdcToLux(analogRead(LDR_PIN));
   // KIỂM TRA DHT11
   if (isnan(temperature) || isnan(humidity)) {
     Serial.println("Failed to read DHT11!");
@@ -297,6 +299,7 @@ void setup() {
   }
   // LDR
   pinMode(LDR_PIN, INPUT);
+  analogReadResolution(LIGHT_ADC_BITS);
   // DHT11
   dht.begin();
   // WIFI

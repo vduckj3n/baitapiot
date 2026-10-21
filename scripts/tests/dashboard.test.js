@@ -22,7 +22,7 @@ function dashboard() {
     alert(message) { throw new Error(message); },
     updateChartTheme() {},
     Chart: class {
-      constructor(_element, options) { this.data = options.data; this.updates = 0; }
+      constructor(_element, options) { this.data = options.data; this.options = options.options; this.updates = 0; }
       update() { this.updates++; }
       destroy() {}
     },
@@ -96,4 +96,20 @@ test('An older HTTP snapshot cannot overwrite a newer MQTT state or another snap
   resolveOlder(snapshot());
   await older;
   assert.equal(d.read('ledStates[3]'), 'ON');
+});
+
+
+test('Dashboard light axis remains 0–1000 and renders endpoint readings', async () => {
+  const d = dashboard();
+  for (const light of [0, 1000]) {
+    const data = snapshot();
+    data.data.latest = {temperature:25,humidity:60,light};
+    data.data.history = [{temperature:25,humidity:60,light,timestamp:'2026-10-21T12:00:00Z'}];
+    d.context.request = async () => data;
+    await d.context.loadDashboard();
+    assert.equal(d.elements.get('val-light').textContent, `${light} Lux`);
+    assert.equal(d.read('combinedChart.options.scales.yLight.min'),0);
+    assert.equal(d.read('combinedChart.options.scales.yLight.max'),1000);
+    assert.equal(d.read('combinedChart.data.datasets[2].data[0]'),light);
+  }
 });

@@ -137,7 +137,7 @@ async function stopMysql(managed, config, backend) {
   if (managed.type === 'service') {
     return serviceAction('stop', managed.name);
   }
-  if (managed.child.exitCode !== null) {
+  if (managed.child && managed.child.exitCode !== null) {
     return;
   }
   if (managed.windowsFromWsl) {
@@ -182,9 +182,10 @@ async function stopMysql(managed, config, backend) {
       await connection.end().catch(() => {});
     }
   }
-  if (managed.child.exitCode !== null) {
+  if (managed.child && managed.child.exitCode !== null) {
     return;
   }
+  if (!managed.child) return;
   await new Promise((resolve, reject) => {
     const timer = setTimeout(
       () => reject(new Error('MySQL chưa dừng sau 20 giây.')),
@@ -215,7 +216,7 @@ function windowsMysql(config, backend) {
   return {
     nodeExecutable,
     convert,
-    async call(action, port) {
+    async call(action, port, service) {
       try {
         const child = require('node:child_process').execFile(nodeExecutable, [script], {
           timeout: 10000,
@@ -223,16 +224,18 @@ function windowsMysql(config, backend) {
         });
         const completed = new Promise((resolve, reject) => {
           child.once('error', reject);
-          let stderr = '';
+          let stderr = '', stdout = '';
+          child.stdout.on('data', chunk => { stdout += chunk; });
           child.stderr.on('data', chunk => { stderr += chunk; });
           child.once('close', (code) => {
-            if (code === 0) resolve();
+            if (code === 0) resolve(stdout);
             else reject(Object.assign(new Error('Windows MySQL operation failed'), { stderr }));
           });
         });
         child.stdin.on('error', () => {});
         child.stdin.end(JSON.stringify({
             action,
+            service,
             backend: backendWindows,
             port: port || Number(config.DB_PORT || 3307),
             user:
@@ -248,11 +251,15 @@ function windowsMysql(config, backend) {
                 ? config.DB_NAME || 'iot_system'
                 : undefined,
           }));
-        await completed;
+        const output = await completed;
+        if (action === 'stopPort') return JSON.parse(output.trim());
       } catch (error) {
         let code = error.code || 'UNKNOWN';
+        let detail;
         try {
-          code = JSON.parse(error.stderr.toString().trim()).code || code;
+          const failure = JSON.parse(error.stderr.toString().trim());
+          code = failure.code || code;
+          if (action === 'stopPort') detail = failure.detail;
         } catch {}
         const messages = {
           ECONNREFUSED:
@@ -267,7 +274,7 @@ function windowsMysql(config, backend) {
           ENOENT: 'Không tìm thấy Node.js Windows hoặc script kết nối MySQL.',
         };
         const failure = new Error(
-          messages[code] || `Không thực hiện được thao tác MySQL (${code}).`,
+          detail || messages[code] || `Không thực hiện được thao tác ${action} (${code}).`,
         );
         failure.code = code;
         throw failure;

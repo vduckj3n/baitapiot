@@ -19,8 +19,8 @@ export function validateSensorPayload(payload) {
   ) {
     throw new Error('humidity không hợp lệ');
   }
-  if (!isFiniteNumber(payload.light) || payload.light < 0) {
-    throw new Error('light không hợp lệ');
+  if (!isFiniteNumber(payload.light) || payload.light < 0 || payload.light > 1000) {
+    throw new Error('light phải là số trong khoảng 0–1000 lux');
   }
 }
 

@@ -6,6 +6,11 @@ let operation = 'input';
 async function main() {
   const options = JSON.parse(fs.readFileSync(0, 'utf8'));
   operation = options.action;
+  if (options.action === 'stopPort') {
+    const result = await require('./stop-port.js').stopPort(options.port, options.service);
+    console.log(JSON.stringify(result || {}));
+    return;
+  }
   if (options.action === 'port') {
     await new Promise((resolve, reject) => {
       const socket = require('node:net').connect({
@@ -70,7 +75,8 @@ async function main() {
 main().catch((error) => {
   // Return only an error code; credentials and connection options stay private.
   console.error(
-    JSON.stringify({ code: error.code || 'UNKNOWN', action: operation }),
+    JSON.stringify({ code: error.code || 'UNKNOWN', action: operation,
+      ...(operation === 'stopPort' ? { detail: String(error.stderr || error.message).trim() } : {}) }),
   );
   process.exitCode = 1;
 });

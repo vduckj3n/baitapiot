@@ -398,7 +398,7 @@ async function start() {
         'Port MQTT đang mở nhưng broker không phản hồi hoặc tài khoản MQTT không hợp lệ.',
       );
     }
-    console.log('Sử dụng MQTT broker đang chạy; npm stop sẽ giữ broker này.');
+    console.log('Sử dụng MQTT broker đang chạy; npm stop sẽ dừng broker này.');
   }
   let args = [path.join(backend, 'src', 'server.js'), '--managed-log'];
   if (process.argv[2] === 'dev') {

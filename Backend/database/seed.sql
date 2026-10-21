@@ -10,7 +10,7 @@ INSERT INTO
 VALUES
   (
     1,
-    'ESP32 Sensor Node',
+    'LED 1',
     'OFF',
     'OFFLINE'
   ),

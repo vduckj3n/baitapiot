@@ -121,6 +121,8 @@ test(
     fs.cpSync(path.resolve(__dirname, '..'), path.join(root, 'scripts'), {
       recursive: true,
     });
+    // External-service shutdown is covered separately with real child processes below.
+    write(root, 'scripts/stop-services.js', 'exports.stopConfiguredServices = async () => {};');
     // Only hardware/database boundaries are simulated; the supervisor and HTTP server are real.
     write(
       root,
@@ -327,5 +329,72 @@ test('MQTT health rejects a TCP listener without MQTT and invalid credentials', 
     } finally {
       await close(server);
     }
+  }
+});
+
+test('npm stop closes pre-existing configured services without a supervisor and reports failures', {
+  skip: process.platform !== 'linux' || !fs.existsSync('/usr/sbin/mosquitto'), timeout: 60000,
+}, async () => {
+  const { portOpen } = require('../runtime.js');
+  for (const wrongBroker of [false, true]) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'iot external stop '));
+    fs.cpSync(path.resolve(__dirname, '..'), path.join(root, 'scripts'), {recursive:true});
+    write(root,'Backend/node_modules/dotenv/index.js', `exports.parse=data=>Object.fromEntries(data.toString().trim().split(/\\n/).map(line=>{const i=line.indexOf('=');return [line.slice(0,i),line.slice(i+1)];}));`);
+    write(root,'Backend/node_modules/mysql2/promise.js', `exports.createConnection=async options=>({query:async sql=>{if(sql!=='SHUTDOWN')throw new Error('Expected graceful shutdown');await new Promise((resolve,reject)=>{const socket=require('node:net').connect({host:options.host,port:options.port},()=>socket.end('SHUTDOWN'));socket.once('end',resolve);socket.once('error',reject);});},end:async()=>{}});`);
+    const db = net.createServer((socket) => socket.on('data',(data)=>{
+      assert.equal(data.toString(),'SHUTDOWN');socket.end();db.close();
+    }));
+    await listen(db);
+    const ports = [];
+    for(let i=0;i<3;i++){const s=net.createServer();await listen(s);ports.push(s.address().port);await close(s);}
+    const [frontendPort,backendPort,mqttPort]=ports;
+    const children=[];
+    const startNode = (port) => {
+      const child=spawn(process.execPath,['-e',`require('node:net').createServer(s=>s.resume()).listen(${port},'127.0.0.1')`],{stdio:'ignore'});
+      children.push(child);return child;
+    };
+    startNode(frontendPort);startNode(backendPort);
+    if(wrongBroker)startNode(mqttPort);
+    else {
+      write(root,'mosquitto.conf',`listener ${mqttPort} 127.0.0.1\nallow_anonymous true\nuser ${os.userInfo().username}\n`);
+      children.push(spawn('/usr/sbin/mosquitto',['-c',path.join(root,'mosquitto.conf')],{stdio:'ignore'}));
+    }
+    write(root,'Backend/.env',`PORT=${backendPort}\nFRONTEND_PORT=${frontendPort}\nDB_HOST=127.0.0.1\nDB_PORT=${db.address().port}\nMQTT_HOST=mqtt://127.0.0.1\nMQTT_PORT=${mqttPort}\n`);
+    try {
+      for(const port of ports) {
+        for(let i=0;i<50 && !await portOpen('127.0.0.1',port);i++)await new Promise(resolve=>setTimeout(resolve,50));
+        assert(await portOpen('127.0.0.1',port),`Fixture did not start on ${port}`);
+      }
+      const result=await command(root,'stop');
+      assert.equal(result.code,wrongBroker?1:0,result.output);
+      assert.equal(await portOpen('127.0.0.1',frontendPort),false);
+      assert.equal(await portOpen('127.0.0.1',backendPort),false);
+      assert.equal(db.listening,false);
+      assert.equal(await portOpen('127.0.0.1',mqttPort),wrongBroker);
+      if(wrongBroker)assert.match(result.output,/MQTT.*tiến trình khác/);
+      else {
+        const again=await command(root,'stop');
+        assert.equal(again.code,0,again.output);
+      }
+    } finally {
+      for(const child of children)if(child.exitCode===null && child.signalCode===null)child.kill('SIGKILL');
+      if(db.listening)await close(db);
+      fs.rmSync(root,{recursive:true,force:true,maxRetries:10,retryDelay:100});
+    }
+  }
+});
+
+test('MQTT shutdown probe distinguishes a forwarding TCP listener from a broker, including rejected logins', async () => {
+  const { mqttResponding } = require('../stop-port.js');
+  for (const responds of [false,true]) {
+    const server=net.createServer(socket=>{
+      socket.on('data',()=>{
+        if(responds)socket.write(Buffer.from([0x20,0x02,0x00,0x05]));
+        else socket.end();
+      });
+    });
+    await listen(server);
+    try {assert.equal(await mqttResponding(server.address().port),responds);}
+    finally {await close(server);}
   }
 });

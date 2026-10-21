@@ -34,8 +34,13 @@ API vẫn trả sensor_name, sensor_type, unit, status, value và timestamp cho 
 `status` của dữ liệu đo tiếp tục trả `Normal` theo hành vi hiện tại; hệ thống chưa có đánh giá ngưỡng.
 MQTT payload, ID ba LED, xác thực và các endpoint không đổi.
 
-Dữ liệu ánh sáng trong firmware vẫn là ADC chưa hiệu chuẩn. Chuỗi đơn vị `Lux` được giữ
-để tương thích hiển thị hiện tại, không có nghĩa dữ liệu đã được hiệu chuẩn thành lux.
+Firmware mới quy đổi tuyến tính ADC 12-bit (0–4095) sang thang ánh sáng 0–1000 lux
+ước lượng, làm tròn số nguyên. Mạch LDR hiện tại cho ADC giảm khi sáng hơn, nên
+dùng công thức round((4095 − ADC) × 1000 / 4095) để sáng hơn cho giá trị lớn hơn. Backend chỉ nhận light trong [0, 1000]; trục ánh sáng
+trên Dashboard cố định 0–1000. LDR chưa được hiệu chuẩn với thiết bị đo độ rọi, nên
+đây là thang ước lượng, không bảo đảm độ rọi thực tế. Các bản ghi lịch sử từ firmware
+cũ được giữ nguyên; chúng có thể chứa ADC thô lớn hơn 1000. Không quy đổi lịch sử
+tự động vì bản tin cũ không có thông tin phiên bản thang đo.
 
 ## Kiểu dữ liệu linh hoạt
 

@@ -110,25 +110,16 @@ async function start(mode) {
 
 async function stop() {
   const state = await activeState();
-  if (!state) {
-    const last = readState();
-    if (last?.stopError) throw new Error(last.stopError);
-    console.log('Hệ thống đã dừng.');
-    return;
+  if (state) {
+    await request(state, '/stop');
+    for (let i = 0; i < 160 && await activeState(); i++) await sleep(250);
+    if (await activeState()) throw new Error('Không dừng được tiến trình quản lý hệ thống. Xem log hệ thống.');
   }
-  await request(state, '/stop');
-  for (let i = 0; i < 160; i++) {
-    if (!(await activeState())) {
-      const last = readState();
-      if (last?.id === state.id && last.stopError) {
-        throw new Error(last.stopError);
-      }
-      console.log('HỆ THỐNG IOT ĐÃ DỪNG');
-      return;
-    }
-    await sleep(250);
-  }
-  throw new Error('Không dừng được hệ thống. Xem log hệ thống.');
+  // Also handle pre-existing services and leftovers when no supervisor is running.
+  await require('./stop-services.js').stopConfiguredServices(root);
+  const last = readState();
+  if (last?.stopError) fs.unlinkSync(path.join(runtime, 'system.json'));
+  console.log('HỆ THỐNG IOT ĐÃ DỪNG (Frontend, Backend, MQTT, MySQL)');
 }
 
 async function main(action) {

@@ -211,6 +211,14 @@ Trong Arduino IDE:
 | LDR | 34 |
 | LED 1 / 2 / 3 | 21 / 22 / 23 |
 
+Ánh sáng được quy đổi tuyến tính từ ADC 12-bit (0–4095) sang thang **0–1000 lux ước lượng**.
+Với mạch LDR hiện tại, ánh sáng mạnh làm ADC giảm; công thức đảo chiều để giá trị hiển thị tăng.
+Công thức: `round((4095 − ADC) × 1000 / 4095)`. Trục biểu đồ ánh sáng giới hạn 0–1000;
+backend từ chối giá trị mới ngoài khoảng này. Cần nạp lại firmware ESP32 để dùng
+thang đo mới. LDR cần hiệu chuẩn với máy đo lux nếu muốn đo độ rọi thực tế.
+Dữ liệu lịch sử từ firmware cũ được giữ nguyên.
+Tham khảo [ADC của ESP32](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/adc.html).
+
 Lấy IP máy chạy broker:
 
 ```powershell
@@ -244,5 +252,13 @@ npm test
 npm run restart
 npm stop
 ```
+
+`npm stop` dừng cả Frontend, Backend, MQTT và MySQL tại các cổng cấu hình,
+kể cả MQTT/MySQL đã chạy trước hoặc tiến trình quản lý không còn hoạt động.
+MySQL được dừng bằng lệnh SHUTDOWN để ghi dữ liệu an toàn; cấu hình
+`MYSQL_ADMIN_USER` và `MYSQL_ADMIN_PASSWORD` nếu tài khoản quản trị không phải root/mật khẩu trống.
+Lệnh kiểm tra các dịch vụ đã dừng và báo lỗi nếu thiếu quyền. Riêng cổng chuyển tiếp
+MQTT của Windows (portproxy) được giữ lại để lần chạy sau ESP32 vẫn kết nối được;
+script xác minh broker phía sau không còn phản hồi MQTT, không tắt dịch vụ mạng Windows.
 
 Log: `Backend/runtime/logs/`.
